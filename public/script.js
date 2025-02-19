@@ -6,7 +6,7 @@ document.getElementById('cloneForm').addEventListener('submit', async (e) => {
     const branch = document.getElementById('branch').value;
 
     const statusDiv = document.getElementById('status');
-    statusDiv.textContent = 'Cloning repository and preparing upload...';
+    statusDiv.textContent = 'Cloning repository ...';
 
     try {
         // Send repository details to the server
@@ -23,7 +23,7 @@ document.getElementById('cloneForm').addEventListener('submit', async (e) => {
         }
 
         const result = await response.json();
-        statusDiv.textContent = result.message || 'Repository cloned and uploaded successfully!';
+        statusDiv.textContent = result.message || 'Repository cloned successfully!';
         statusDiv.style.color = 'green';
     } catch (error) {
         statusDiv.textContent = `Error: ${error.message}`;
