@@ -1,3 +1,7 @@
 {
-    "ignore": ["cloned_repos/*"]
+    "ignore": [
+        "cloned_repos/*", 
+        "node_modules/*", 
+        "uploads/*"
+    ]
 }
