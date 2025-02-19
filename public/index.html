@@ -3,25 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Git Web Viewer</title>
+    <title>Git Repository Downloader</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Git Web Viewer</h1>
-    <form action="/prepare-clone" method="post">
-        <label for="repoUrl">-> Enter or Select GitHub Repository URL:</label><br>
-        <input type="text" id="repoUrl" name="repoUrl" list="repoUrls" required><br><br>
-        <datalist id="repoUrls">
-            <!-- This will be populated with JavaScript -->
-        </datalist>
-        <label for="action">If the repository exists:</label>
-        <select name="action" id="action">
-            <option value="delete">Delete it</option>
-        <option value="rename">Rename it</option>
-        </select><br><br>
-        <input type="submit" value="Prepare Clone">
+    <h1>Git Repository Downloader</h1>
+    <form id="downloadForm" enctype="multipart/form-data">
+        <label for="userId">GitHub User ID:</label><br>
+        <input type="text" id="userId" name="userId" required><br><br>
+
+        <label for="repoName">Repository Name:</label><br>
+        <input type="text" id="repoName" name="repoName" required><br><br>
+
+        <label for="branch">Branch Name:</label><br>
+        <input type="text" id="branch" name="branch" value="main" required><br><br>
+
+        <button type="submit">Download and Upload ZIP</button>
     </form>
-    <!-- Link to the external JavaScript file -->
+    <div id="status" style="margin-top: 20px;"></div>
+
     <script src="script.js"></script>
 </body>
 </html>
