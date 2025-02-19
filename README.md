@@ -13,7 +13,21 @@ A simple Node.js server that clones one of your private GitHub repository and al
 ### Installation
 
 1. **Clone this Repository:**
+```bash
+git clone https://github.com/your-username/git-web-viewer.git
+cd git-web-viewer
 
-   ```bash
-   git clone https://github.com/your-username/git-web-viewer.git
-   cd git-web-viewer
+
+## Project Structure
+```text
+project-root/
+├── config.js
+├── server.js
+├── utils/
+│   ├── fsUtils.js
+│   └── gitUtils.js
+├── routes/
+│   └── index.js
+└── public/
+    └── index.html
+```
