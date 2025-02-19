@@ -18,9 +18,13 @@
         <label for="branch">Branch Name:</label><br>
         <input type="text" id="branch" name="branch" value="main" required><br><br>
 
-        <button type="submit">Clone Repository</button>
+        <button type="submit">Clone and Upload Repository</button>
     </form>
     <div id="status" style="margin-top: 20px;"></div>
+    <div id="progressContainer" style="margin-top: 20px; display: none;">
+        <progress id="progressBar" value="0" max="100"></progress>
+        <span id="progressText">0%</span>
+    </div>
 
     <script src="script.js"></script>
 </body>

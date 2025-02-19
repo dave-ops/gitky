@@ -1,3 +1,4 @@
+/* Existing styles remain the same */
 body {
     font-family: Arial, sans-serif;
     max-width: 600px;
@@ -50,4 +51,21 @@ button:hover {
 #status {
     text-align: center;
     color: #333;
+}
+
+/* New styles for progress bar */
+#progressContainer {
+    text-align: center;
+}
+
+progress {
+    width: 80%;
+    height: 20px;
+    margin: 10px 0;
+}
+
+#progressText {
+    display: block;
+    margin-top: 5px;
+    font-weight: bold;
 }
