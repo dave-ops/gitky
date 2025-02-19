@@ -3,29 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Git Repository Cloner</title>
+    <title>gitky</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Git Repository Cloner</h1>
-    <form id="cloneForm" enctype="multipart/form-data">
-        <label for="userId">GitHub User ID:</label><br>
-        <input type="text" id="userId" name="userId" required><br><br>
-
-        <label for="repoName">Repository Name:</label><br>
-        <input type="text" id="repoName" name="repoName" required><br><br>
-
-        <label for="branch">Branch Name:</label><br>
-        <input type="text" id="branch" name="branch" value="main" required><br><br>
-
-        <button type="submit">Clone and Upload Repository</button>
-    </form>
-    <div id="status" style="margin-top: 20px;"></div>
-    <div id="progressContainer" style="margin-top: 20px; display: none;">
-        <progress id="progressBar" value="0" max="100"></progress>
-        <span id="progressText">0%</span>
+    <div class="container">
+        <h1>gitky</h1>
+        <form id="gitForm">
+            <div class="form-group">
+                <label for="user">User:</label>
+                <input type="text" id="user" name="user" required>
+            </div>
+            <div class="form-group">
+                <label for="repo">Repo:</label>
+                <input type="text" id="repo" name="repo" required>
+            </div>
+            <div class="form-group">
+                <label for="branch">Branch:</label>
+                <input type="text" id="branch" name="branch" required>
+            </div>
+            <div class="form-group">
+                <label for="token">GitHub Token:</label>
+                <input type="text" id="token" name="token" placeholder="ghp_xxx (optional for public repos)">
+            </div>
+            <button type="submit">Submit</button>
+        </form>
+        <div id="status" class="status"></div> <!-- Added for feedback -->
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        document.getElementById('gitForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const user = document.getElementById('user').value;
+            const repo = document.getElementById('repo').value;
+            const branch = document.getElementById('branch').value;
+            const token = document.getElementById('token').value;
+            const status = document.getElementById('status');
+
+            status.textContent = 'Processing...';
+            status.style.color = '#333';
+
+            try {
+                const response = await fetch('/clone', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ user, repo, branch, token })
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    status.textContent = result.message || `Successfully processed ${user}/${repo}/${branch}`;
+                    status.style.color = 'green';
+                } else {
+                    throw new Error(result.error || 'Unknown error');
+                }
+            } catch (error) {
+                status.textContent = `Error: ${error.message}`;
+                status.style.color = 'red';
+                console.error('Error:', error);
+            }
+        });
+    </script>
 </body>
 </html>
