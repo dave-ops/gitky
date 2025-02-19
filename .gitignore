@@ -132,3 +132,4 @@ dist
 # gitky
 repos/
 cloned_repos/
+.workspace/

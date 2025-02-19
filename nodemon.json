@@ -2,6 +2,7 @@
     "ignore": [
         "cloned_repos/*", 
         "node_modules/*", 
-        "uploads/*"
+        "uploads/*",
+        ".workspace/**"
     ]
 }

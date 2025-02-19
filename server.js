@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 
 // Configure directory for cloned repositories
-const cloneDir = 'cloned_repos';
+const cloneDir = '.workspace';
 if (!fs.existsSync(cloneDir)) {
     fs.mkdirSync(cloneDir);
 }
