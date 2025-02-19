@@ -9,7 +9,7 @@
 <body>
     <h1>Git Web Viewer</h1>
     <form action="/prepare-clone" method="post">
-        <label for="repoUrl">Enter or Select GitHub Repository URL:</label><br>
+        <label for="repoUrl">-> Enter or Select GitHub Repository URL:</label><br>
         <input type="text" id="repoUrl" name="repoUrl" list="repoUrls" required><br><br>
         <datalist id="repoUrls">
             <!-- This will be populated with JavaScript -->
@@ -17,61 +17,11 @@
         <label for="action">If the repository exists:</label>
         <select name="action" id="action">
             <option value="delete">Delete it</option>
-            <option value="rename">Rename it</option>
+        <option value="rename">Rename it</option>
         </select><br><br>
         <input type="submit" value="Prepare Clone">
     </form>
-    <script>
-        // Function to save URL to local storage
-        function saveToLocalStorage(url) {
-            let urls = JSON.parse(localStorage.getItem('repoUrls')) || [];
-            // Check for duplicates
-            if (!urls.includes(url)) {
-                urls.push(url);
-                // Sort URLs alphabetically
-                urls.sort();
-                localStorage.setItem('repoUrls', JSON.stringify(urls));
-            }
-        }
-
-        // Function to populate the datalist
-        function populateDatalist() {
-            let urls = JSON.parse(localStorage.getItem('repoUrls')) || [];
-            const datalist = document.getElementById('repoUrls');
-            datalist.innerHTML = '';
-            urls.forEach(url => {
-                const option = document.createElement('option');
-                option.value = url;
-                datalist.appendChild(option);
-            });
-        }
-
-        // Event listener for form submission
-        document.querySelector('form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const repoUrl = formData.get('repoUrl');
-            // Save to local storage before sending to server
-            saveToLocalStorage(repoUrl);
-
-            const response = await fetch('/prepare-clone', {
-                method: 'POST',
-                body: formData
-            });
-            const text = await response.text();
-            alert(text);
-            if (text.includes('Proceed with cloning')) {
-                const cloneResponse = await fetch('/clone', {
-                    method: 'POST',
-                    body: formData
-                });
-                const cloneText = await cloneResponse.text();
-                document.body.innerHTML = cloneText;
-            }
-        });
-
-        // Populate the datalist when the page loads
-        populateDatalist();
-    </script>
+    <!-- Link to the external JavaScript file -->
+    <script src="script.js"></script>
 </body>
 </html>

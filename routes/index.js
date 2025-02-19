@@ -81,3 +81,36 @@ exports.viewFile = async (req, res) => {
         res.status(404).send('File not found or error reading file');
     }
 };
+
+exports.downloadZip = async (req, res) => {
+    const repoName = req.params.repoName;
+    
+    const repoPath = path.join(config.WORKING_DIR, repoName);
+    
+    try {
+        // Check if the repository exists
+        await fs.access(repoPath);
+        
+        // Set the headers for the response
+        res.setHeader('Content-Type', 'application/zip');
+        res.setHeader('Content-Disposition', `attachment; filename=${repoName}.zip`);
+        
+        // Create a zip archive
+        const archive = archiver('zip', {
+            zlib: { level: 9 } // Sets the compression level.
+        });
+        
+        // Pipe the archive to the response
+        archive.pipe(res);
+        
+        // Append the directory contents to the archive
+        archive.directory(repoPath, repoName);
+        
+        // Finalize the archive
+        archive.finalize();
+        
+    } catch (error) {
+        console.error('Error in downloading zip:', error);
+        res.status(404).send('Repository not found or error in creating zip');
+    }
+};

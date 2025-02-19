@@ -21,13 +21,15 @@ cd git-web-viewer
 ## Project Structure
 ```text
 project-root/
-├── config.js
-├── server.js
+├── public/
+│   ├── index.html
+│   ├── styles.css
+│   └── script.js
 ├── utils/
 │   ├── fsUtils.js
 │   └── gitUtils.js
 ├── routes/
 │   └── index.js
-└── public/
-    └── index.html
+├── config.js
+└── server.js
 ```
