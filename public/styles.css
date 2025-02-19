@@ -69,3 +69,18 @@ progress {
     margin-top: 5px;
     font-weight: bold;
 }
+
+/* public/styles.css */
+.file-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.file-list li {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.file-list li:last-child {
+    border-bottom: none;
+}

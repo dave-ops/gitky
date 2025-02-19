@@ -1,0 +1,54 @@
+<!-- public/files.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>gitky - Files</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Uploaded Files</h1>
+        <p id="repoInfo"></p>
+        <ul id="fileList" class="file-list"></ul>
+        <a href="/">Back to Upload</a>
+    </div>
+
+    <script>
+        // Get query parameters from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const user = urlParams.get('user');
+        const repo = urlParams.get('repo');
+        const branch = urlParams.get('branch');
+
+        // Display repo info
+        document.getElementById('repoInfo').textContent = `Repository: ${user}/${repo} (Branch: ${branch})`;
+
+        // Fetch and display file list
+        async function loadFiles() {
+            try {
+                const response = await fetch(`/files?user=${user}&repo=${repo}&branch=${branch}`);
+                const files = await response.json();
+
+                const fileList = document.getElementById('fileList');
+                if (files.length === 0) {
+                    fileList.innerHTML = '<li>No files found.</li>';
+                } else {
+                    files.forEach(file => {
+                        const li = document.createElement('li');
+                        li.textContent = file.fileName;
+                        fileList.appendChild(li);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading files:', error);
+                document.getElementById('fileList').innerHTML = '<li>Error loading files.</li>';
+            }
+        }
+
+        // Load files when page loads
+        loadFiles();
+    </script>
+</body>
+</html>

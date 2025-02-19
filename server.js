@@ -7,10 +7,10 @@ const path = require('path');
 
 const app = express();
 app.use(express.json());
-app.use(express.static('public')); // Serve the web form
+app.use(express.static('public'));
 
 // MongoDB setup
-const mongoUri = 'mongodb://127.0.0.1:27017'; // Replace with your URI
+const mongoUri = 'mongodb://127.0.0.1:27017/gitky'; // Replace with your URI
 const client = new MongoClient(mongoUri);
 
 async function connectToMongoDB() {
@@ -36,7 +36,6 @@ app.post('/clone', async (req, res) => {
   const zipPath = `${tempDir}/repo.zip`;
 
   try {
-    // GitHub API to download repo as ZIP
     const url = `https://api.github.com/repos/${user}/${repo}/zipball/${branch}`;
     const response = await axios({
       url,
@@ -48,15 +47,12 @@ app.post('/clone', async (req, res) => {
       },
     });
 
-    // Save ZIP temporarily
     await fs.mkdir(tempDir, { recursive: true });
     await fs.writeFile(zipPath, response.data);
 
-    // Extract ZIP
     const zip = new AdmZip(zipPath);
     zip.extractAllTo(tempDir, true);
 
-    // Process files
     const extractedDir = zip.getEntries()[0].entryName.split('/')[0];
     const filesDir = path.join(tempDir, extractedDir);
     const files = await fs.readdir(filesDir, { withFileTypes: true });
@@ -78,6 +74,31 @@ app.post('/clone', async (req, res) => {
     });
   } finally {
     await fs.rm(tempDir, { recursive: true, force: true });
+    await client.close();
+  }
+});
+
+// GET endpoint to list files
+app.get('/files', async (req, res) => {
+  const { user, repo, branch } = req.query;
+  const db = await connectToMongoDB();
+
+  try {
+    const collection = db.collection('files');
+    const files = await collection
+      .find({
+        'metadata.user': user,
+        'metadata.repo': repo,
+        'metadata.branch': branch,
+      })
+      .project({ fileName: 1, _id: 0 }) // Only return fileName
+      .toArray();
+
+    res.json(files);
+  } catch (error) {
+    console.error('Error fetching files:', error);
+    res.status(500).json({ error: 'Failed to fetch files' });
+  } finally {
     await client.close();
   }
 });

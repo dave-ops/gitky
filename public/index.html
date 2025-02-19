@@ -28,7 +28,7 @@
             </div>
             <button type="submit">Submit</button>
         </form>
-        <div id="status" class="status"></div> <!-- Added for feedback -->
+        <div id="status" class="status"></div>
     </div>
 
     <script>
@@ -55,8 +55,12 @@
 
                 const result = await response.json();
                 if (response.ok) {
-                    status.textContent = result.message || `Successfully processed ${user}/${repo}/${branch}`;
+                    status.textContent = 'Upload successful! Redirecting...';
                     status.style.color = 'green';
+                    // Redirect to files page with query params
+                    setTimeout(() => {
+                        window.location.href = `/files.html?user=${user}&repo=${repo}&branch=${branch}`;
+                    }, 1000); // Delay for user to see success message
                 } else {
                     throw new Error(result.error || 'Unknown error');
                 }
