@@ -10,13 +10,27 @@
 </head>
 <body>
     <div class="container">
-        <h1>Uploaded Files</h1>
-        <p id="repoInfo"></p>
-        <div id="breadcrumb" class="breadcrumb"></div>
-        <p id="currentPath">Path: /</p>
-        <ul id="fileList" class="file-list"></ul>
-        <div id="fileContent" class="file-content"></div>
-        <a href="/">Back to Upload</a>
+        <header>
+            <h1>Uploaded Files</h1>
+            <p id="repoInfo"></p>
+        </header>
+        <div class="split-pane">
+            <div class="left-pane">
+                <div class="breadcrumb-nav">
+                    <div id="breadcrumb" class="breadcrumb"></div>
+                </div>
+                <div class="path-info">
+                    <p id="currentPath">Path: /</p>
+                </div>
+                <ul id="fileList" class="file-list"></ul>
+            </div>
+            <div class="right-pane">
+                <div id="fileContent" class="file-content"></div>
+            </div>
+        </div>
+        <footer>
+            <a href="/">Back to Upload</a>
+        </footer>
     </div>
 
     <script src="files.js"></script>

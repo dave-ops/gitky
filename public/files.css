@@ -1,28 +1,101 @@
+/* files.css */
+
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* Ensures the container takes the full viewport height */
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    padding: 20px;
+    flex-shrink: 0; /* Prevents header from shrinking */
+}
+
+.split-pane {
+    display: flex;
+    flex: 1; /* Takes up remaining space after header */
+    overflow: hidden; /* Prevents content from overflowing outside the container */
+}
+
+.left-pane {
+    width: auto; /* Adjusts to content width */
+    min-width: 200px; /* Minimum width to ensure usability */
+    max-width: 300px; /* Maximum width to prevent excessive space usage */
+    overflow-y: auto; /* Allows vertical scrolling if content exceeds viewport height */
+    border-right: 1px solid #ddd;
+    padding: 10px;
+}
+
+.right-pane {
+    flex: 1; /* Takes up all remaining horizontal space */
+    overflow-y: auto; /* Allows vertical scrolling if content exceeds viewport height */
+    padding: 10px;
+}
+
 .file-list {
     list-style-type: none;
     padding: 0;
+    margin: 0;
 }
+
 .file-item, .folder-item {
     padding: 10px;
     cursor: pointer;
-    border-bottom: 1px solid #ddd;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 5px;
+    transition: background-color 0.3s;
+    white-space: nowrap; /* Prevents text wrapping */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Adds ellipsis if text is too long */
 }
+
 .file-item:hover, .folder-item:hover {
     background-color: #f0f0f0;
 }
+
 .folder-item::before {
     content: "📁 ";
 }
+
 .file-item::before {
     content: "📄 ";
 }
+
+.file-content {
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    height: 100%; /* Fills the entire height of the right pane */
+    overflow-y: auto; /* Allows scrolling within the content area */
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+footer {
+    padding: 20px;
+    flex-shrink: 0; /* Prevents footer from shrinking */
+}
+
 .breadcrumb {
     margin-bottom: 10px;
 }
+
 .breadcrumb a {
     text-decoration: none;
     color: #007bff;
 }
+
 .breadcrumb a:hover {
     text-decoration: underline;
+}
+
+/* To ensure the layout doesn't go beyond the fold */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
 }
