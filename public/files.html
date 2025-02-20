@@ -10,12 +10,12 @@
 </head>
 <body>
     <div class="container">
-        <header>
+        <header class="page-header">
             <h1>Uploaded Files</h1>
             <p id="repoInfo"></p>
         </header>
-        <div class="split-pane">
-            <div class="left-pane">
+        <div class="main-content">
+            <nav class="file-tree">
                 <div class="breadcrumb-nav">
                     <div id="breadcrumb" class="breadcrumb"></div>
                 </div>
@@ -23,12 +23,12 @@
                     <p id="currentPath">Path: /</p>
                 </div>
                 <ul id="fileList" class="file-list"></ul>
-            </div>
-            <div class="right-pane">
+            </nav>
+            <div class="file-viewer">
                 <div id="fileContent" class="file-content"></div>
             </div>
         </div>
-        <footer>
+        <footer class="footer">
             <a href="/">Back to Upload</a>
         </footer>
     </div>
