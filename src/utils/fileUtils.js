@@ -20,6 +20,7 @@ function buildHierarchicalStructure(files) {
             if (!current.children) current.children = {};
             if (!current.children[part]) {
                 current.children[part] = {
+                    id: file._id.toString(),
                     type: index === parts.length - 1 && !file.isDirectory ? 'file' : 'directory',
                     path: parts.slice(0, index + 1).join('/'),
                     content: file.isDirectory ? null : file.content,
@@ -29,6 +30,8 @@ function buildHierarchicalStructure(files) {
             current = current.children[part];
         });
     });
+
+    console.log(root);
 
     return root;
 }

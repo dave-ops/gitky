@@ -49,6 +49,9 @@ function displayFiles(structure, path = '') {
     // Display files and folders at the current path
     const items = getItemsAtPath(structure, path);
     Object.entries(items).forEach(([name, item]) => {
+
+        console.log(item)
+
         const li = document.createElement('li');
         li.className = item.type === 'directory' ? 'folder-item' : 'file-item';
         li.textContent = name;
@@ -56,7 +59,7 @@ function displayFiles(structure, path = '') {
             li.onclick = () => navigateTo(item.path);
         } else {
             // Here, we assume that the structure includes _id from MongoDB
-            li.onclick = () => showFileContent(item.path, name, item._id);
+            li.onclick = () => showFileContent(item.path, name, item.id);
         }
         fileList.appendChild(li);
     });
