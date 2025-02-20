@@ -4,6 +4,9 @@ const { connectToMongoDB, client } = require('../config/db');
 const router = express.Router();
 
 router.get('/', async (req, res) => {
+
+    console.log(req.query)
+
     const { user, repo, branch, filePath } = req.query;
     const db = await connectToMongoDB();
 
@@ -15,6 +18,8 @@ router.get('/', async (req, res) => {
             'metadata.branch': branch,
             filePath,
         });
+
+        console.log({ file })
 
         if (!file) {
             return res.status(404).json({ error: 'File not found' });

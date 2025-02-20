@@ -4,7 +4,6 @@ const urlParams = new URLSearchParams(window.location.search);
 const user = urlParams.get('user');
 const repo = urlParams.get('repo');
 const branch = urlParams.get('branch');
-let currentPath = ''; // Track current directory path
 
 document.getElementById('repoInfo').textContent = `Repository: ${user}/${repo} (Branch: ${branch})`;
 
@@ -56,7 +55,8 @@ function displayFiles(structure, path = '') {
         if (item.type === 'directory') {
             li.onclick = () => navigateTo(item.path);
         } else {
-            li.onclick = () => showFileContent(item.path, name);
+            // Here, we assume that the structure includes _id from MongoDB
+            li.onclick = () => showFileContent(item.path, name, item._id);
         }
         fileList.appendChild(li);
     });
@@ -82,11 +82,11 @@ async function navigateTo(path) {
     await loadFiles(path);
 }
 
-async function showFileContent(filePath, fileName) {
+async function showFileContent(filePath, fileName, fileId) {
     const fileContent = document.getElementById('fileContent');
     console.log('Fetching content for:', filePath); // Debug
     try {
-        const response = await fetch(`/file?user=${user}&repo=${repo}&branch=${branch}&path=${encodeURIComponent(filePath)}`);
+        const response = await fetch(`/files/content/${fileId}`);
         const data = await response.json();
         console.log('Response status:', response.status, 'Content:', data); // Debug
         if (response.ok) {
