@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint . --fix",
     "lint:check": "eslint .",
-    "start": "nodemon server",
+    "start": "nodemon src/server",
     "purge": "rmdir repos /s",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
