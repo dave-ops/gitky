@@ -6,11 +6,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>gitky - Files</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .file-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .file-item, .folder-item {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #ddd;
+        }
+        .file-item:hover, .folder-item:hover {
+            background-color: #f0f0f0;
+        }
+        .folder-item::before {
+            content: "📁 ";
+        }
+        .file-item::before {
+            content: "📄 ";
+        }
+        .breadcrumb {
+            margin-bottom: 10px;
+        }
+        .breadcrumb a {
+            text-decoration: none;
+            color: #007bff;
+        }
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <h1>Uploaded Files</h1>
         <p id="repoInfo"></p>
+        <div id="breadcrumb" class="breadcrumb"></div>
         <p id="currentPath">Path: /</p>
         <ul id="fileList" class="file-list"></ul>
         <div id="fileContent" class="file-content"></div>
@@ -22,7 +53,7 @@
         const user = urlParams.get('user');
         const repo = urlParams.get('repo');
         const branch = urlParams.get('branch');
-        let currentPath = '';
+        let currentPath = ''; // Track current directory path
 
         document.getElementById('repoInfo').textContent = `Repository: ${user}/${repo} (Branch: ${branch})`;
 
@@ -30,33 +61,18 @@
             const fileList = document.getElementById('fileList');
             const fileContent = document.getElementById('fileContent');
             fileContent.textContent = '';
-            document.getElementById('currentPath').textContent = `Path: /${path}`;
+            document.getElementById('currentPath').textContent = `Path: /${path || ''}`;
 
             try {
-                const response = await fetch(`/files?user=${user}&repo=${repo}&branch=${branch}&path=${path}`);
-                const items = await response.json();
-                console.log('Fetched items:', items); // Debug: Check what’s returned
+                const response = await fetch(`/files?user=${user}&repo=${repo}&branch=${branch}&path=${encodeURIComponent(path)}`);
+                const data = await response.json();
+                console.log('Fetched structure:', data); // Debug: Check what’s returned
 
                 fileList.innerHTML = '';
-                if (items.length === 0) {
+                if (!data || !data.structure || Object.keys(data.structure).length === 0) {
                     fileList.innerHTML = '<li>No files or folders found.</li>';
                 } else {
-                    items.forEach(item => {
-                        const li = document.createElement('li');
-                        const name = item.filePath.split('/').pop();
-                        li.textContent = `${item.isDirectory ? '📁' : '📄'} ${name}`;
-                        li.style.cursor = 'pointer';
-                        li.addEventListener('click', () => {
-                            console.log('Clicked:', item.filePath, 'Is Directory:', item.isDirectory); // Debug
-                            if (item.isDirectory) {
-                                currentPath = item.filePath;
-                                loadFiles(currentPath);
-                            } else {
-                                showFileContent(item.filePath);
-                            }
-                        });
-                        fileList.appendChild(li);
-                    });
+                    displayFiles(data.structure, path);
                 }
             } catch (error) {
                 console.error('Error loading files:', error);
@@ -64,17 +80,68 @@
             }
         }
 
-        async function showFileContent(filePath) {
+        function displayFiles(structure, path = '') {
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = ''; // Clear current list
+
+            // Update breadcrumb
+            const breadcrumb = document.getElementById('breadcrumb');
+            breadcrumb.innerHTML = `<a href="#" onclick="navigateTo('')">Root</a>`;
+            if (path) {
+                const parts = path.split('/').filter(p => p);
+                let current = '';
+                parts.forEach((part, index) => {
+                    current += (current ? '/' : '') + part;
+                    breadcrumb.innerHTML += ` / <a href="#" onclick="navigateTo('${current}')">${part}</a>`;
+                });
+            }
+
+            // Display files and folders at the current path
+            const items = getItemsAtPath(structure, path);
+            Object.entries(items).forEach(([name, item]) => {
+                const li = document.createElement('li');
+                li.className = item.type === 'directory' ? 'folder-item' : 'file-item';
+                li.textContent = name;
+                if (item.type === 'directory') {
+                    li.onclick = () => navigateTo(item.path);
+                } else {
+                    li.onclick = () => showFileContent(item.path, name);
+                }
+                fileList.appendChild(li);
+            });
+        }
+
+        function getItemsAtPath(structure, path) {
+            let current = structure;
+            if (!path) return current;
+
+            const parts = path.split('/').filter(p => p);
+            for (const part of parts) {
+                if (current[part] && current[part].children) {
+                    current = current[part].children;
+                } else {
+                    return {};
+                }
+            }
+            return current;
+        }
+
+        async function navigateTo(path) {
+            currentPath = path;
+            await loadFiles(path);
+        }
+
+        async function showFileContent(filePath, fileName) {
             const fileContent = document.getElementById('fileContent');
             console.log('Fetching content for:', filePath); // Debug
             try {
-                const response = await fetch(`/file?user=${user}&repo=${repo}&branch=${branch}&filePath=${filePath}`);
-                const content = await response.text();
-                console.log('Response status:', response.status, 'Content:', content); // Debug
+                const response = await fetch(`/file?user=${user}&repo=${repo}&branch=${branch}&path=${encodeURIComponent(filePath)}`);
+                const data = await response.json();
+                console.log('Response status:', response.status, 'Content:', data); // Debug
                 if (response.ok) {
-                    fileContent.textContent = content;
+                    fileContent.textContent = data.content || 'No content available'; // Use plain text
                 } else {
-                    fileContent.textContent = `Error: ${content}`;
+                    fileContent.textContent = `Error: ${data.error || 'Failed to load file'}`;
                 }
             } catch (error) {
                 fileContent.textContent = 'Error loading file content.';
@@ -82,6 +149,7 @@
             }
         }
 
+        // Initial load
         loadFiles();
     </script>
 </body>
