@@ -31,7 +31,7 @@ body, html {
 }
 
 .file-tree {
-    width: 260px; /* Similar to GitHub's file tree width */
+    width: 360px; /* Similar to GitHub's file tree width */
     background-color: #fff;
     border-right: 1px solid #e1e4e8;
     overflow-y: auto;
