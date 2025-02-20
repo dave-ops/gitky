@@ -20,6 +20,28 @@ Welcome to **Gitky**, a simple web application designed to view and navigate thr
 
 ## Project Structure
 
+```text
+project-root/
+├── .github/          # GitHub specific files
+│   └── workflows/    # GitHub Actions workflows
+├── public/           # Static files that are served directly to the client
+│   ├── index.html    # Main HTML file
+│   ├── styles.css    # CSS styling
+│   └── script.js     # Client-side JavaScript
+├── utils/            # Utility functions
+│   ├── fsUtils.js    # File system utility functions
+│   └── gitUtils.js   # Git related utility functions
+├── routes/           # Express.js route handlers
+│   └── index.js      # Main routing file
+├── config/           # Configuration files
+│   └── config.js     # Configuration settings
+├── src/              # Source code for the application
+│   └── server.js     # Main server file
+├── package.json      # npm package configuration
+├── README.md         # Project documentation
+└── .gitignore        # Specifies which files to ignore in version control
+```
+
 
 A simple Node.js server that clones one of your private GitHub repository and allows you to privately share its contents over the web.
 
@@ -38,19 +60,3 @@ A simple Node.js server that clones one of your private GitHub repository and al
 git clone https://github.com/your-username/git-web-viewer.git
 cd git-web-viewer
 
-
-## Project Structure
-```text
-project-root/
-├── public/
-│   ├── index.html
-│   ├── styles.css
-│   └── script.js
-├── utils/
-│   ├── fsUtils.js
-│   └── gitUtils.js
-├── routes/
-│   └── index.js
-├── config.js
-└── server.js
-```
