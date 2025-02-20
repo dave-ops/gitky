@@ -1,4 +1,4 @@
-draw the logo shown in the image, here's a detailed description:
+draw me a logo from the following detailed description:
 
 Shape: The logo is primarily composed of a circle. This circle forms the outer boundary of the logo.
 
