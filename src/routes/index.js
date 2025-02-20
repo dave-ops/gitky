@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs').promises;
 const { ensureWorkingDir, checkAndPrepareDir } = require('../utils/fsUtils');
 const { cloneRepo, listFiles } = require('../utils/gitUtils');
-const config = require('../config');
+const config = require('../../config');
 
 ensureWorkingDir().catch(console.error);
 
