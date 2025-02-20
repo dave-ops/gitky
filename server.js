@@ -9,7 +9,6 @@ const app = express();
 app.use(express.json());
 app.use(express.static('public'));
 
-// MongoDB setup
 const mongoUri = 'mongodb://127.0.0.1:27017/gitky'; // Replace with your URI
 const client = new MongoClient(mongoUri);
 
@@ -21,10 +20,10 @@ async function connectToMongoDB() {
 async function saveFileToMongoDB(db, filePath, fileContent, metadata, isDirectory = false) {
   const collection = db.collection('files');
   await collection.insertOne({
-    filePath,              // Full path (e.g., "src/index.js")
-    content: fileContent,  // Buffer (null for directories)
-    metadata,              // { user, repo, branch }
-    isDirectory,           // Boolean to distinguish files vs folders
+    filePath,
+    content: fileContent,
+    metadata,
+    isDirectory,
     createdAt: new Date(),
   });
 }
@@ -43,8 +42,9 @@ app.post('/clone', async (req, res) => {
       method: 'GET',
       responseType: 'arraybuffer',
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: token ? `Bearer ${token}` : undefined, // Only include token if provided
         Accept: 'application/vnd.github.v3+json',
+        'User-Agent': 'gitky/1.0', // Add a User-Agent to comply with GitHub API
       },
     });
 
@@ -57,9 +57,8 @@ app.post('/clone', async (req, res) => {
     const extractedDir = zip.getEntries()[0].entryName.split('/')[0];
     const filesDir = path.join(tempDir, extractedDir);
 
-    // Process ZIP entries (files and directories)
     for (const entry of zip.getEntries()) {
-      const relativePath = entry.entryName.replace(`${extractedDir}/`, ''); // Remove top-level dir
+      const relativePath = entry.entryName.replace(`${extractedDir}/`, '');
       if (entry.isDirectory) {
         await saveFileToMongoDB(db, relativePath, null, { user, repo, branch }, true);
       } else {
@@ -71,20 +70,25 @@ app.post('/clone', async (req, res) => {
 
     res.json({ message: `Successfully processed ${user}/${repo}/${branch}` });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: 'Error processing repo',
-      error: error.response ? error.response.data : error.message,
-    });
+    console.error('Error cloning repo:', error);
+    let errorMessage = 'Error processing repo';
+    if (error.response) {
+      errorMessage = `GitHub API Error: ${error.response.status} - ${error.response.data.message || error.response.statusText}`;
+    } else if (error.request) {
+      errorMessage = 'Network error: Unable to connect to GitHub';
+    } else {
+      errorMessage = error.message;
+    }
+    res.status(500).json({ error: errorMessage });
   } finally {
-    await fs.rm(tempDir, { recursive: true, force: true });
+    await fs.rm(tempDir, { recursive: true, force: true }).catch(err => console.error('Error cleaning up temp dir:', err));
     await client.close();
   }
 });
 
 // GET endpoint to list files and folders at a path
 app.get('/files', async (req, res) => {
-  const { user, repo, branch, path = '' } = req.query; // Optional path for subdirectories
+  const { user, repo, branch, path = '' } = req.query;
   const db = await connectToMongoDB();
 
   try {
@@ -94,7 +98,7 @@ app.get('/files', async (req, res) => {
         'metadata.user': user,
         'metadata.repo': repo,
         'metadata.branch': branch,
-        filePath: { $regex: `^${path}[^/]*$` }, // Match files/folders at this level
+        filePath: { $regex: `^${path}[^/]*$` },
       })
       .project({ filePath: 1, isDirectory: 1, _id: 0 })
       .toArray();
@@ -108,12 +112,10 @@ app.get('/files', async (req, res) => {
   }
 });
 
-// Inside server.js
+// GET endpoint to retrieve file contents
 app.get('/file', async (req, res) => {
   const { user, repo, branch, filePath } = req.query;
   const db = await connectToMongoDB();
-
-  console.log('Fetching file with params:', { user, repo, branch, filePath }); // Debug
 
   try {
     const collection = db.collection('files');
@@ -125,15 +127,12 @@ app.get('/file', async (req, res) => {
     });
 
     if (!file) {
-      console.log('File not found in MongoDB'); // Debug
       return res.status(404).json({ error: 'File not found' });
     }
     if (file.isDirectory) {
-      console.log('Requested item is a directory'); // Debug
       return res.status(400).json({ error: 'This is a directory' });
     }
 
-    console.log('File found, sending content'); // Debug
     res.send(file.content.toString('utf8'));
   } catch (error) {
     console.error('Error fetching file:', error);

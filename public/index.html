@@ -57,15 +57,15 @@
                 if (response.ok) {
                     status.textContent = 'Upload successful! Redirecting...';
                     status.style.color = 'green';
-                    // Redirect to files page with query params
                     setTimeout(() => {
                         window.location.href = `/files.html?user=${user}&repo=${repo}&branch=${branch}`;
-                    }, 1000); // Delay for user to see success message
+                    }, 1000);
                 } else {
-                    throw new Error(result.error || 'Unknown error');
+                    throw new Error(result.error || 'Unknown server error');
                 }
             } catch (error) {
-                status.textContent = `Error: ${error.message}`;
+                const errorMessage = error.message || 'An error occurred';
+                status.textContent = `Error: ${errorMessage}`;
                 status.style.color = 'red';
                 console.error('Error:', error);
             }

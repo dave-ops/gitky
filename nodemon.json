@@ -3,6 +3,7 @@
         "cloned_repos/*", 
         "node_modules/*", 
         "uploads/*",
-        ".workspace/**"
+        ".workspace/**",
+        "temp*/**"
     ]
 }
