@@ -1,6 +1,7 @@
 const express = require('express');
 const { connectToMongoDB, client } = require('../config/db');
 const { buildHierarchicalStructure, getItemsAtPath } = require('../utils/fileUtils');
+const { ObjectId } = require('mongodb');
 
 const router = express.Router();
 
@@ -38,12 +39,17 @@ router.get('/', async (req, res) => {
 
 // New route for fetching file content by _id
 router.get('/content/:id', async (req, res) => {
+
+    console.log(req.params);
+
     const { id } = req.params;
     const db = await connectToMongoDB();
 
     try {
         const collection = db.collection('files');
-        const file = await collection.findOne({ _id: id }, { projection: { content: 1, filePath: 1 } });
+        const file = await collection.findOne({ _id: new ObjectId(id) }, { projection: { content: 1, filePath: 1 } });
+
+        console.log({ file })
 
         if (!file) {
             return res.status(404).json({ error: 'File not found' });
