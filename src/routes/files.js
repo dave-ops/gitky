@@ -9,9 +9,11 @@ router.get('/', async (req, res) => {
     const db = await connectToMongoDB();
 
     try {
+        // Use projection to exclude the 'content' field
         const collection = db.collection('files');
         const entries = await collection
             .find({ 'metadata.user': user, 'metadata.repo': repo, 'metadata.branch': branch })
+            .project({ content: 0 }) // This line excludes the 'content' field
             .sort({ filePath: 1 }) // Sort by path for hierarchical order
             .toArray();
 
@@ -23,7 +25,7 @@ router.get('/', async (req, res) => {
             return res.json(items);
         }
 
-        res.json({ structure });
+        res.json(structure);
     } catch (error) {
         console.error('Error fetching files:', error);
         res.status(500).json({ error: 'Error fetching files' });
