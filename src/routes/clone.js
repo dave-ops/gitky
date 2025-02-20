@@ -34,7 +34,6 @@ router.post('/', async (req, res) => {
         zip.extractAllTo(tempDir, true);
 
         const extractedDir = zip.getEntries()[0].entryName.split('/')[0];
-        const filesDir = path.join(tempDir, extractedDir);
 
         for (const entry of zip.getEntries()) {
             let relativePath = entry.entryName.replace(`${extractedDir}/`, '').trim(); // Remove extractedDir prefix and trim whitespace
