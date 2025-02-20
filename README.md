@@ -1,10 +1,9 @@
-# Gitky - Privte Github File Viewer
+# Gitky - Private Github File Share
 
-Welcome to **Gitky**, a simple web application designed to view and navigate through files in a GitHub-like interface. This project aims to provide a user-friendly way to explore repository contents, particularly focusing on a responsive layout that adapts to different screen sizes.
+Welcome to **Gitky**, a simple web application designed to view and navigate through files in a GitHub-like interface. This project aims to provide a user-friendly way to explore contents of your private repositories with a private uri.
 
 ## Features
 
-- **Responsive Design**: The layout adjusts to fit different screen sizes, ensuring usability on both desktop and mobile devices.
 - **File/Folder Navigation**: Users can navigate through directories and view file contents in a split-pane view, similar to GitHub's file explorer.
 - **File Content Display**: Content of selected files is displayed in the right pane, with support for text files.
 - **Breadcrumb Navigation**: Easy navigation back to parent directories or root with clickable breadcrumbs.
