@@ -11,43 +11,77 @@
     <div class="container">
         <h1>Uploaded Files</h1>
         <p id="repoInfo"></p>
+        <p id="currentPath">Path: /</p>
         <ul id="fileList" class="file-list"></ul>
+        <div id="fileContent" class="file-content"></div>
         <a href="/">Back to Upload</a>
     </div>
 
     <script>
-        // Get query parameters from URL
         const urlParams = new URLSearchParams(window.location.search);
         const user = urlParams.get('user');
         const repo = urlParams.get('repo');
         const branch = urlParams.get('branch');
+        let currentPath = '';
 
-        // Display repo info
         document.getElementById('repoInfo').textContent = `Repository: ${user}/${repo} (Branch: ${branch})`;
 
-        // Fetch and display file list
-        async function loadFiles() {
-            try {
-                const response = await fetch(`/files?user=${user}&repo=${repo}&branch=${branch}`);
-                const files = await response.json();
+        async function loadFiles(path = '') {
+            const fileList = document.getElementById('fileList');
+            const fileContent = document.getElementById('fileContent');
+            fileContent.textContent = '';
+            document.getElementById('currentPath').textContent = `Path: /${path}`;
 
-                const fileList = document.getElementById('fileList');
-                if (files.length === 0) {
-                    fileList.innerHTML = '<li>No files found.</li>';
+            try {
+                const response = await fetch(`/files?user=${user}&repo=${repo}&branch=${branch}&path=${path}`);
+                const items = await response.json();
+                console.log('Fetched items:', items); // Debug: Check what’s returned
+
+                fileList.innerHTML = '';
+                if (items.length === 0) {
+                    fileList.innerHTML = '<li>No files or folders found.</li>';
                 } else {
-                    files.forEach(file => {
+                    items.forEach(item => {
                         const li = document.createElement('li');
-                        li.textContent = file.fileName;
+                        const name = item.filePath.split('/').pop();
+                        li.textContent = `${item.isDirectory ? '📁' : '📄'} ${name}`;
+                        li.style.cursor = 'pointer';
+                        li.addEventListener('click', () => {
+                            console.log('Clicked:', item.filePath, 'Is Directory:', item.isDirectory); // Debug
+                            if (item.isDirectory) {
+                                currentPath = item.filePath;
+                                loadFiles(currentPath);
+                            } else {
+                                showFileContent(item.filePath);
+                            }
+                        });
                         fileList.appendChild(li);
                     });
                 }
             } catch (error) {
                 console.error('Error loading files:', error);
-                document.getElementById('fileList').innerHTML = '<li>Error loading files.</li>';
+                fileList.innerHTML = '<li>Error loading files.</li>';
             }
         }
 
-        // Load files when page loads
+        async function showFileContent(filePath) {
+            const fileContent = document.getElementById('fileContent');
+            console.log('Fetching content for:', filePath); // Debug
+            try {
+                const response = await fetch(`/file?user=${user}&repo=${repo}&branch=${branch}&filePath=${filePath}`);
+                const content = await response.text();
+                console.log('Response status:', response.status, 'Content:', content); // Debug
+                if (response.ok) {
+                    fileContent.textContent = content;
+                } else {
+                    fileContent.textContent = `Error: ${content}`;
+                }
+            } catch (error) {
+                fileContent.textContent = 'Error loading file content.';
+                console.error('Error fetching file content:', error);
+            }
+        }
+
         loadFiles();
     </script>
 </body>

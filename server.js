@@ -18,12 +18,13 @@ async function connectToMongoDB() {
   return client.db('gitky');
 }
 
-async function saveFileToMongoDB(db, fileName, fileContent, metadata) {
+async function saveFileToMongoDB(db, filePath, fileContent, metadata, isDirectory = false) {
   const collection = db.collection('files');
   await collection.insertOne({
-    fileName,
-    content: fileContent,
-    metadata,
+    filePath,              // Full path (e.g., "src/index.js")
+    content: fileContent,  // Buffer (null for directories)
+    metadata,              // { user, repo, branch }
+    isDirectory,           // Boolean to distinguish files vs folders
     createdAt: new Date(),
   });
 }
@@ -55,13 +56,16 @@ app.post('/clone', async (req, res) => {
 
     const extractedDir = zip.getEntries()[0].entryName.split('/')[0];
     const filesDir = path.join(tempDir, extractedDir);
-    const files = await fs.readdir(filesDir, { withFileTypes: true });
 
-    for (const file of files) {
-      if (file.isFile()) {
-        const filePath = path.join(filesDir, file.name);
+    // Process ZIP entries (files and directories)
+    for (const entry of zip.getEntries()) {
+      const relativePath = entry.entryName.replace(`${extractedDir}/`, ''); // Remove top-level dir
+      if (entry.isDirectory) {
+        await saveFileToMongoDB(db, relativePath, null, { user, repo, branch }, true);
+      } else {
+        const filePath = path.join(tempDir, entry.entryName);
         const content = await fs.readFile(filePath);
-        await saveFileToMongoDB(db, file.name, content, { user, repo, branch });
+        await saveFileToMongoDB(db, relativePath, content, { user, repo, branch }, false);
       }
     }
 
@@ -78,9 +82,9 @@ app.post('/clone', async (req, res) => {
   }
 });
 
-// GET endpoint to list files
+// GET endpoint to list files and folders at a path
 app.get('/files', async (req, res) => {
-  const { user, repo, branch } = req.query;
+  const { user, repo, branch, path = '' } = req.query; // Optional path for subdirectories
   const db = await connectToMongoDB();
 
   try {
@@ -90,8 +94,9 @@ app.get('/files', async (req, res) => {
         'metadata.user': user,
         'metadata.repo': repo,
         'metadata.branch': branch,
+        filePath: { $regex: `^${path}[^/]*$` }, // Match files/folders at this level
       })
-      .project({ fileName: 1, _id: 0 }) // Only return fileName
+      .project({ filePath: 1, isDirectory: 1, _id: 0 })
       .toArray();
 
     res.json(files);
@@ -103,5 +108,39 @@ app.get('/files', async (req, res) => {
   }
 });
 
-// Start server
+// Inside server.js
+app.get('/file', async (req, res) => {
+  const { user, repo, branch, filePath } = req.query;
+  const db = await connectToMongoDB();
+
+  console.log('Fetching file with params:', { user, repo, branch, filePath }); // Debug
+
+  try {
+    const collection = db.collection('files');
+    const file = await collection.findOne({
+      'metadata.user': user,
+      'metadata.repo': repo,
+      'metadata.branch': branch,
+      filePath,
+    });
+
+    if (!file) {
+      console.log('File not found in MongoDB'); // Debug
+      return res.status(404).json({ error: 'File not found' });
+    }
+    if (file.isDirectory) {
+      console.log('Requested item is a directory'); // Debug
+      return res.status(400).json({ error: 'This is a directory' });
+    }
+
+    console.log('File found, sending content'); // Debug
+    res.send(file.content.toString('utf8'));
+  } catch (error) {
+    console.error('Error fetching file:', error);
+    res.status(500).json({ error: 'Failed to fetch file' });
+  } finally {
+    await client.close();
+  }
+});
+
 app.listen(3000, () => console.log('Server running on http://localhost:3000'));
